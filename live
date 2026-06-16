@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AmirSportsLive - FIFA World Cup 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0a0a0a; color: #e0e0e0; }
+        header {
+            background: #111827;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #ffd700;
+        }
+        .logo { font-size: 2.3rem; font-weight: 700; color: #ffd700; }
+        .search {
+            background: #1f2937;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            width: 420px;
+            color: white;
+        }
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://source.unsplash.com/random/1920x500/?world-cup-stadium');
+            padding: 45px 20px;
+            text-align: center;
+        }
+        .hero h1 { font-size: 2.9rem; margin-bottom: 8px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+        .tab {
+            padding: 10px 24px;
+            background: #1f2937;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+        .tab.active { background: #ef4444; }
+        .match-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(520px, 1fr));
+            gap: 20px;
+        }
+        .match-card {
+            background: #1f2937;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid #334155;
+        }
+        .card-header {
+            padding: 12px 20px;
+            background: #111827;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .live-badge {
+            background: #ef4444;
+            padding: 5px 16px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 50% { opacity: 0.6; } }
+        .teams {
+            display: flex;
+            justify-content: space-around;
+            padding: 25px 20px;
+            text-align: center;
+        }
+        .team-flag { font-size: 4.8rem; margin-bottom: 8px; }
+        .watch-btn {
+            width: 100%;
+            padding: 18px;
+            background: #22c55e;
+            color: #111827;
+            border: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+        footer { text-align: center; padding: 40px; background: #111827; color: #777; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">⚽ AmirSportsLive</div>
+        <input type="text" class="search" placeholder="Search events...">
+    </header>
+
+    <div class="hero">
+        <h1>FIFA WORLD CUP 2026</h1>
+        <p style="font-size:1.3rem;">LIVE STREAMING • REAL TIME SCORES</p>
+    </div>
+
+    <div class="container">
+        <div class="tabs">
+            <div class="tab active">All</div>
+            <div class="tab">Live</div>
+            <div class="tab">Upcoming</div>
+            <div class="tab">Football</div>
+        </div>
+
+        <h2 style="color:white; margin:20px 0 15px;">🔴 LIVE & UPCOMING EVENTS</h2>
+        <div id="matches" class="match-grid"></div>
+    </div>
+
+    <footer>
+        <p>AmirSportsLive © 2026 • FIFA World Cup লাইভ</p>
+    </footer>
+
+    <script>
+        async function loadRealMatches() {
+            const container = document.getElementById('matches');
+            container.innerHTML = '<p style="text-align:center; padding:60px; color:#94a3b8;">রিয়েল ম্যাচ লোড হচ্ছে...</p>';
+
+            try {
+                const res = await fetch('https://worldcup26.ir/get/games');
+                const data = await res.json();
+                const matches = data.games || data || [];
+
+                container.innerHTML = '';
+
+                if (matches.length > 0) {
+                    matches.slice(0, 8).forEach(m => {
+                        const card = document.createElement('div');
+                        card.className = 'match-card';
+                        card.innerHTML = `
+                            <div class="card-header">
+                                <span style="background:#22c55e; padding:5px 14px; border-radius:6px;">WORLD CUP 2026</span>
+                                <span class="live-badge">LIVE</span>
+                            </div>
+                            <div class="teams">
+                                <div>
+                                    <div class="team-flag">${m.home_flag || '🇮🇷'}</div>
+                                    <div>${m.home_team || 'Iran'}</div>
+                                </div>
+                                <div style="font-size:2.8rem; color:#ffd700; margin-top:25px;">
+                                    ${m.home_score || 0} - ${m.away_score || 0}
+                                </div>
+                                <div>
+                                    <div class="team-flag">${m.away_flag || '🇳🇿'}</div>
+                                    <div>${m.away_team || 'New Zealand'}</div>
+                                </div>
+                            </div>
+                            <div style="text-align:center; color:#94a3b8; margin:10px 0;">${m.time || 'Started few hours ago'}</div>
+                            <button onclick="watchLive()" class="watch-btn">▶ WATCH LIVE</button>
+                        `;
+                        container.appendChild(card);
+                    });
+                } else {
+                    container.innerHTML = '<p style="text-align:center; padding:60px; color:#ffd700;">এখন কোনো লাইভ ম্যাচ চলছে না। পরে চেক করুন।</p>';
+                }
+            } catch(e) {
+                container.innerHTML = '<p style="text-align:center; padding:60px; color:#f87171;">রিয়েল ডেটা লোড হচ্ছে... (ডেমো মোড)</p>';
+            }
+        }
+
+        function watchLive() {
+            window.open('https://www.youtube.com/results?search_query=fifa+world+cup+2026+live', '_blank');
+        }
+
+        setInterval(loadRealMatches, 20000);
+        window.onload = loadRealMatches;
+    </script>
+</body>
+</html>
